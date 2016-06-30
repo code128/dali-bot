@@ -16,6 +16,10 @@ class Game {
 			this.players = this.players.concat(opts.players);
 		}
 	}
+
+	getCurrentPlayer() {
+		return this.players[this.currentTurn];
+	}
 }
 
 module.exports = Game;

@@ -1,16 +1,18 @@
+require('dotenv').config();
+
 var express = require('express');
-var dotenv = require('dotenv');
+var bodyParser = require('body-parser');
 var handlers = require('./handlers');
 
-dotenv.config();
 var app = express();
 
 function requestLogger(req, res, next) {
-	console.log(req.method, req.url);
+	console.log(req.method, req.url, req.body);
 	next();
 }
 
 function run() {
+	app.use(bodyParser.json());
 	app.use(requestLogger);
 
 	app.post('/api/games', handlers.createGame);

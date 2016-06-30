@@ -1,11 +1,29 @@
 var Game = require('./Game');
 var games = require('./games');
+var apiClient = require('./apiClient');
 
 function createGame(req, res) {
-	var game = new Game();
-
+	var game = new Game(req.body);
 	games.add(game);
-	res.send(game);
+
+	apiClient.wraps.createPersonalized(process.env.WRAP_ID_GAMEPLAY, {
+			personalized_json: {},
+			tags: 'dalibot, hackathon'
+		})
+		.then(function(gameplayWrap) {
+			return apiClient.wraps.share(gameplayWrap.id, {
+				phone_number: game.getCurrentPlayer(),
+				type: 'sms',
+				body: 'Play Exquisite Wrap! {{wrap}}'
+			});
+		})
+		.then(function(body) {
+			res.send(game);
+		})
+		.catch(function(errorRes) {
+			games.remove(game.id);
+			res.status(500).send(errorRes.body);
+		});
 }
 
 function updateGame(req, res) {
