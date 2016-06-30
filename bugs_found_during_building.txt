@@ -1,1 +1,2 @@
 Adding a profile picture is broken
+Selecting text in a RTE preview and applying styles doesn't work. 
