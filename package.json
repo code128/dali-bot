@@ -1,0 +1,29 @@
+{
+  "name": "x-dali-bot",
+  "version": "1.0.0",
+  "description": "Exquisite corpse style activity for Wrap Hackathon June 2016",
+  "main": "index.js",
+  "engines": {
+    "node": "4.4.7"
+  },
+  "dependencies": {
+    "express": "^4.14.0",
+    "lodash": "^4.13.1",
+    "node-uuid": "^1.4.7"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/WrapMedia/x-dali-bot.git"
+  },
+  "author": "Josh Bloom, Kelly Nichols, Julia Xu",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/WrapMedia/x-dali-bot/issues"
+  },
+  "homepage": "https://github.com/WrapMedia/x-dali-bot#readme"
+}
