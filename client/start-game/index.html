@@ -1,0 +1,57 @@
+<html>
+<head>
+    <title>add players</title>
+</head>
+<body onload="pageload()">
+    <form id="startGameForm">
+        <div>
+            <label for="player1">Player 1 Phone:</label>
+            <input type="tel" id="player1" name="player1" />
+        </div>
+        <div>
+            <label for="player2">Player 2 Phone:</label>
+            <input type="tel" id="player2" name="player2" />
+        </div>
+        <div>
+            <label for="player3">Player 3 Phone:</label>
+            <input type="tel" id="player3" name="player3" />
+        </div>
+
+        <div class="button">
+            <button type="submit">Start</button>
+        </div>
+    </form>
+    <script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
+    <script src="//wrap.co/widgets.js"></script>
+    <script type="text/javascript">
+
+        var DALIBOT_API_URL = 'http://10.0.1.238:4444/api';
+
+        function pageload() {
+            wrap.initialize().then(function() {
+                console.log("Wrap Events: ", WRAP_EVENTS) //A listing of Wrap events you can register for
+                //EG
+                //wrap.listenForEvent(WRAP_EVENTS.ctaClick, ctaClick)
+            })
+
+            var $startGameForm = $('#startGameForm');
+
+            $startGameForm.submit(function(event) {
+                event.preventDefault();
+
+                var gameOptions = {
+                    players: $startGameForm.find('input').map(function() { return this.value; }).get()
+                };
+
+                console.log(gameOptions);
+
+                $.post(DALIBOT_API_URL + '/games', gameOptions, 'json')
+                    .done(function() { console.log('success'); })
+                    .fail(function() { console.log('error'); });
+            });
+        }
+
+    </script>
+</body>
+
+</html>

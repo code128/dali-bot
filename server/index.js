@@ -16,6 +16,7 @@ function requestLogger(req, res, next) {
 function run() {
 	app.use(bodyParser.json());
 	app.use(requestLogger);
+	app.use('/public', express.static(process.cwd() + '/client'));
 
 	app.post('/api/games', handlers.createGame);
 	app.get('/api/games/', handlers.listGames);
