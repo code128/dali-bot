@@ -1,8 +1,14 @@
 <html>
 <head>
-    <title>add players</title>
+    <title>Exquisite Wrap: Start Game</title>
+    <style>
+        #startGameSuccess,
+        #startGameError {
+            display: none;
+        }
+    </style>
 </head>
-<body onload="pageload()">
+<body>
     <form id="startGameForm">
         <div>
             <label for="player1">Player 1 Phone:</label>
@@ -21,35 +27,45 @@
             <button type="submit">Start</button>
         </div>
     </form>
+
+    <div id="startGameSuccess">Game started!</div>
+    <div id="startGameError">Error starting game!</div>
+
     <script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
     <script src="//wrap.co/widgets.js"></script>
     <script type="text/javascript">
 
-        var DALIBOT_API_URL = 'http://10.0.1.238:4444/api';
-
-        function pageload() {
-            wrap.initialize().then(function() {
-                console.log("Wrap Events: ", WRAP_EVENTS) //A listing of Wrap events you can register for
-                //EG
-                //wrap.listenForEvent(WRAP_EVENTS.ctaClick, ctaClick)
-            })
+        $(function() {
+            var DALIBOT_API_URL = 'https://localhost:4444/api';
+            var CREATE_GAME_URL = DALIBOT_API_URL + '/games';
 
             var $startGameForm = $('#startGameForm');
+            var $startGameSuccess = $('#startGameSuccess');
+            var $startGameError = $('#startGameError');
+
+            wrap.initialize().then(function() {
+                wrap.hideClickShield();
+            })
 
             $startGameForm.submit(function(event) {
                 event.preventDefault();
 
-                var gameOptions = {
+                var gameOptions = JSON.stringify({
                     players: $startGameForm.find('input').map(function() { return this.value; }).get()
-                };
+                });
 
-                console.log(gameOptions);
-
-                $.post(DALIBOT_API_URL + '/games', gameOptions, 'json')
-                    .done(function() { console.log('success'); })
-                    .fail(function() { console.log('error'); });
+                $.ajax({
+                    type: 'POST',
+                    url: CREATE_GAME_URL,
+                    headers: { 'Content-Type': 'application/json' },
+                    data: gameOptions,
+                    dataType: 'json'
+                })
+                    .done(function() { $startGameSuccess.toggle(); })
+                    .fail(function() { $startGameError.toggle(); })
+                    .always(function() { $startGameForm.toggle(); });
             });
-        }
+        });
 
     </script>
 </body>
