@@ -1,9 +1,9 @@
 var express = require('express');
+var dotenv = require('dotenv');
 var handlers = require('./handlers');
 
+dotenv.config();
 var app = express();
-
-var DALI_PORT = 4444;
 
 function requestLogger(req, res, next) {
 	console.log(req.method, req.url);
@@ -18,7 +18,9 @@ function run() {
 	app.get('/api/games/:id', handlers.getGame);
 	app.put('/api/games/:id', handlers.updateGame);
 
-	app.listen(DALI_PORT, function() { console.log('Dalibot listening on port ' + DALI_PORT); });
+	app.listen(process.env.SERVER_PORT, function() {
+		console.log('Dalibot listening on port ' + process.env.SERVER_PORT);
+	});
 }
 
 module.exports = {
