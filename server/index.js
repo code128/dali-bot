@@ -1,5 +1,7 @@
 require('dotenv').config();
 
+var https = require('https');
+var fs = require('fs');
 var express = require('express');
 var bodyParser = require('body-parser');
 var handlers = require('./handlers');
@@ -20,8 +22,13 @@ function run() {
 	app.get('/api/games/:id', handlers.getGame);
 	app.put('/api/games/:id', handlers.updateGame);
 
-	app.listen(process.env.SERVER_PORT, function() {
-		console.log('Dalibot listening on port ' + process.env.SERVER_PORT);
+	var options = {
+		key: fs.readFileSync(process.cwd() + '/ssl/server.key'),
+		cert: fs.readFileSync(process.cwd() + '/ssl/server.crt')
+	};
+
+	https.createServer(options, app).listen(process.env.SERVER_PORT, function() {
+		console.log('Dalibot listening over https on port ' + process.env.SERVER_PORT);
 	});
 }
 
