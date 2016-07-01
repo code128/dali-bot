@@ -1,0 +1,189 @@
+<html>
+<head>
+    <title>take picture</title>
+</head>
+    <!-- load wrap js -->
+    <script src="//wrap.co/widgets.js"></script>
+    <script type="text/javascript">
+
+    var gameID, turnID;
+    var image;
+    var contourFinder;
+    var startTime = 0;
+    var maxResolution = 400;
+
+    var resultWidth;
+    var resultHeight;
+
+    var imageWidth;
+
+    var filters,
+        canny;
+
+    image = document.getElementById('canvas');
+
+	function pageload() {
+        wrap.initialize().then(function() {
+            wrap.getWrapValues()
+                .then(function(fields) {
+                    gameID = fields.metadata.gameID;
+                    turnID = fields.metadata.turnID;
+                }).catch(function(error) {
+                    console.log(error)
+            })
+        })
+ 
+        // Hookup photo button
+        document.getElementById("snap").addEventListener("click", function() {
+            canvas.getContext("2d").drawImage(video, 0, 0, 640, 480);
+            //
+            var resultImage = new Image();
+            resultImage.onload = function() {
+                processDelilah(resultImage)
+            }
+            resultImage.id = 'result';
+            resultImage.src = canvas.toDataURL();
+        });
+	}
+
+    function processDelilah(image) {
+        imageWidth = image.width;
+            if (image.width > image.height) {
+              resultWidth = Math.min(image.width, maxResolution);
+              resultHeight = parseInt(resultWidth * image.height / image.width, 10);
+            } else {
+              resultHeight = Math.min(image.height, maxResolution);
+              resultWidth = parseInt(resultHeight * image.width / image.height, 10);
+            }
+            contourFinder = new ContourFinder();
+            canvas = new Canvas('canvas', resultWidth, resultHeight);
+            canny = new Canny(canvas);
+            filters = new Filters(canvas);
+
+            image.style.opacity = 0;
+
+            // delete previous images
+            var prev = document.querySelector('.container img');
+            if (prev) {
+              prev.parentNode.removeChild(prev);
+            }
+
+            var polylines = document.querySelectorAll('#svg2 polyline');
+            if (polylines.length) {
+              for (var i = 0; i < polylines.length; i++) {
+                polylines[i].parentNode.removeChild(polylines[i]);
+              }
+            }
+
+            document.querySelector('.container')
+              .appendChild(image);
+
+            canvas.loadImg(image.src, 0, 0, resultWidth, resultHeight).then(process);
+    }
+
+        // Put event listeners into place
+    window.addEventListener("DOMContentLoaded", function() {
+        // Grab elements, create settings, etc.
+        var canvas = document.getElementById("canvas"),
+            context = canvas.getContext("2d"),
+            video = document.getElementById("video"),
+            videoObj = { "video": true },
+            errBack = function(error) {
+                console.log("Video capture error: ", error.code);
+            };
+
+        // Put video listeners into place
+        if(navigator.getUserMedia) { // Standard
+            navigator.getUserMedia(videoObj, function(stream) {
+                video.src = stream;
+                video.play();
+            }, errBack);
+        } else if(navigator.webkitGetUserMedia) { // WebKit-prefixed
+            navigator.webkitGetUserMedia(videoObj, function(stream){
+                video.src = window.webkitURL.createObjectURL(stream);
+                video.play();
+            }, errBack);
+        }
+        else if(navigator.mozGetUserMedia) { // Firefox-prefixed
+            navigator.mozGetUserMedia(videoObj, function(stream){
+                video.src = window.URL.createObjectURL(stream);
+                video.play();
+            }, errBack);
+        }
+    }, false);
+
+    function process() {
+      startTime = Date.now();
+
+      canvas.setImgData(filters.grayscale());
+      canvas.setImgData(filters.gaussianBlur(5, 1));
+
+      canvas.setImgData(canny.gradient('sobel'));
+      canvas.setImgData(canny.nonMaximumSuppress());
+      canvas.setImgData(canny.hysteresis());
+
+      contourFinder.init(canvas.getCanvas());
+      contourFinder.findContours();
+
+      console.log('contourFinder.allContours.length): ' + contourFinder.allContours.length);
+      var secs = (Date.now() - startTime) / 1000;
+      console.log('Finding contours took ' + secs + 's');
+
+      drawContours();
+    }
+
+    function drawContours() {
+      for (var i = 0; i < contourFinder.allContours.length; i++) {
+        //console.log('contour #' + i + ' length: ' + contourFinder.allContours[i].length);
+        drawContour(i);
+      }
+      animate();
+    }
+
+    function drawContour(index) {
+      var points = contourFinder.allContours[index];
+
+      var pointsString = '';
+      for (var i = 0; i < points.length; i+= 2) {
+        pointsString += (points[i].x + 1) + ',' + points[i].y + '  ';
+      }
+
+      var polyline = document.createElementNS('http://www.w3.org/2000/svg','polyline');
+      polyline.setAttributeNS(null, 'points', pointsString.trim());
+      polyline.setAttributeNS(null, 'stroke', '#ffffff');
+      polyline.setAttributeNS(null, 'stroke-width', 1);
+      polyline.setAttributeNS(null, 'stroke-linecap', 'round');
+      polyline.setAttributeNS(null, 'opacity', 1);
+      polyline.setAttributeNS(null, 'stroke-dashoffset', 0);
+      polyline.setAttributeNS(null, 'fill', 'none');
+
+      var svg = document.querySelector('#svg2');
+      svg.appendChild(polyline);
+      svg.setAttribute('viewBox', '0 0 ' + resultWidth + ' ' + resultHeight);
+      svg.setAttribute('style', 'width:' + imageWidth + 'px');
+    }
+
+    </script>
+
+<body onload="pageload()">
+    <video id="video" width="640" height="240" autoplay></video>
+    <button id="snap">Snap Photos</button>
+    <canvas id="canvas" width="640" height="240"></canvas>
+      <div class="container">
+    <svg id="svg2" xmlns="http://www.w3.org/2000/svg"
+      xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 63 63">
+    </svg>
+  </div>
+
+  <script src="js/pixel.js"></script>
+  <script src="js/canvas.js"></script>
+  <script src="js/canny.js"></script>
+  <script src="js/helpers.js"></script>
+  <script src="js/filters.js"></script>
+  <script src="js/jquery-1.10.1.min.js"></script>
+  <script src="js/contour.js"></script>
+  <script src="js/image-provider.js"></script>
+
+</body>
+
+</html>

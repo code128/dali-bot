@@ -1,63 +1,40 @@
-<html>
+<!doctype html>
+<html lang="en">
 <head>
-    <title>take picture</title>
+  <meta charset="utf-8">
+  <title>contour - Draw edges from bitmap images using SVG</title>
+  <link rel="author" href="https://plus.google.com/107456024651797783420" />
+  <meta name="description" content="A cool drawing effect using canny edge detection and animating SVG polylines to sketch images.">
+  <meta name="twitter:description" property="og:description" content="A cool drawing effect using canny edge detection and animating SVG polylines to sketch images.">
+  <meta name="twitter:title" property="og:title" content="contour - Draw edges from bitmap images using SVG<">
+  <link rel="stylesheet" href="css/styles.css">
+  <script>(function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=
+            function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;
+            e=o.createElement(i);r=o.getElementsByTagName(i)[0];
+            e.src='//www.google-analytics.com/analytics.js';
+            r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));
+            ga('create','UA-39254352-1');ga('send','pageview');</script>
 </head>
-    <!-- load wrap js -->
-    <script src="//wrap.co/widgets.js"></script>
-    <script type="text/javascript">
-
-		function pageload() {
-            wrap.initialize().then(function() {
-                console.log("Wrap Events: ", WRAP_EVENTS) //A listing of Wrap events you can register for
-                //EG
-                //wrap.listenForEvent(WRAP_EVENTS.ctaClick, ctaClick)
-            })
-
-
-            // Trigger photo take
-            document.getElementById("snap").addEventListener("click", function() {
-                canvas.getContext("2d").drawImage(video, 0, 0, 640, 480);
-            });
-		}
-
-        // Put event listeners into place
-window.addEventListener("DOMContentLoaded", function() {
-    // Grab elements, create settings, etc.
-    var canvas = document.getElementById("canvas"),
-        context = canvas.getContext("2d"),
-        video = document.getElementById("video"),
-        videoObj = { "video": true },
-        errBack = function(error) {
-            console.log("Video capture error: ", error.code);
-        };
-
-    // Put video listeners into place
-    if(navigator.getUserMedia) { // Standard
-        navigator.getUserMedia(videoObj, function(stream) {
-            video.src = stream;
-            video.play();
-        }, errBack);
-    } else if(navigator.webkitGetUserMedia) { // WebKit-prefixed
-        navigator.webkitGetUserMedia(videoObj, function(stream){
-            video.src = window.webkitURL.createObjectURL(stream);
-            video.play();
-        }, errBack);
-    }
-    else if(navigator.mozGetUserMedia) { // Firefox-prefixed
-        navigator.mozGetUserMedia(videoObj, function(stream){
-            video.src = window.URL.createObjectURL(stream);
-            video.play();
-        }, errBack);
-    }
-}, false);
-
-
-
-    </script>
-<body onload="pageload()">
-    <video id="video" width="640" height="480" autoplay></video>
-    <button id="snap">Snap Photo</button>
-    <canvas id="canvas" width="640" height="480"></canvas>
+<body>
+  <header>
+    contour
+  </header>
+  <div class="main">
+    <div id="droparea">Drop image to start painting</div>
+  </div>
+  <div class="container">
+    <svg id="svg2" xmlns="http://www.w3.org/2000/svg"
+      xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 63 63">
+    </svg>
+  </div>
+  <script src="js/pixel.js"></script>
+  <script src="js/canvas.js"></script>
+  <script src="js/canny.js"></script>
+  <script src="js/helpers.js"></script>
+  <script src="js/filters.js"></script>
+  <script src="js/jquery-1.10.1.min.js"></script>
+  <script src="js/contour.js"></script>
+  <script src="js/image-provider.js"></script>
+  <script src="js/main.js"></script>
 </body>
-
 </html>
