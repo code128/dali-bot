@@ -16,8 +16,8 @@
 
         #imageContainer {
             position: relative;
-            width: 640px;
-            height: 480px;
+            width: 480px;
+            height: 640px;
             margin: 20px auto;
         }
 
@@ -29,10 +29,10 @@
 </head>
 <body>
     <div id="imageContainer">
-        <video id="video" width="640" height="480" autoplay></video>
-        <canvas id="cameraCanvas" width="640" height="480"></canvas>
+        <video id="video" width="480" height="640" autoplay></video>
+        <canvas id="cameraCanvas" width="480" height="640"></canvas>
         <div id="lineArt">
-            <svg id="svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 640 480"></svg>
+            <svg id="svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 480 640"></svg>
         </div>
     </div>
 
@@ -51,14 +51,15 @@
     <script src="js/image-provider.js"></script>
 
     <script type="text/javascript">
-        var gameID, turnID;
+        var gameID,
+            turnID;
 
         var contourFinder,
             filters,
             canny;
 
-        var IMAGE_WIDTH = 640,
-            IMAGE_HEIGHT = 480;
+        var IMAGE_WIDTH = 480,
+            IMAGE_HEIGHT = 640;
 
         var video = document.getElementById('video'),
             cameraCanvas = document.getElementById('cameraCanvas'),
