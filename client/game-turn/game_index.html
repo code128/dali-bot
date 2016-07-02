@@ -29,8 +29,8 @@
 </head>
 <body>
     <div id="imageContainer">
-        <video id="video" width="640px" height="480px" autoplay></video>
-        <canvas id="cameraCanvas" width="640px" height="480px"></canvas>
+        <video id="video" width="640" height="480" autoplay></video>
+        <canvas id="cameraCanvas" width="640" height="480"></canvas>
         <div id="lineArt">
             <svg id="svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 640 480"></svg>
         </div>
@@ -117,8 +117,29 @@
         }
 
         function setCameraCanvasImage() {
-            cameraCanvas.getContext('2d').drawImage(video, 0, 0, IMAGE_WIDTH, IMAGE_HEIGHT);
+            var rect = getScaledRect(video.videoWidth, video.videoHeight, IMAGE_WIDTH, IMAGE_HEIGHT);
+
+            cameraCanvas.getContext('2d').drawImage(video, rect.x, rect.y, rect.width, rect.height);
             $('#cameraCanvas').show();
+        }
+
+        function getScaledRect(sourceWidth, sourceHeight, targetWidth, targetHeight) {
+            var scaledRect = {
+                x: 0,
+                y: 0,
+                width: targetWidth,
+                height: targetHeight
+            };
+
+            if (sourceWidth > sourceHeight) {
+                scaledRect.height = targetWidth * sourceHeight / sourceWidth;
+                scaledRect.y = (targetHeight - scaledRect.height) / 2;
+            } else {
+                scaledRect.width = targetHeight * sourceWidth / sourceHeight;
+                scaledRect.x = (targetWidth - scaledRect.width) / 2;
+            }
+
+            return scaledRect;
         }
 
         function convertPhotoToLineArt() {
