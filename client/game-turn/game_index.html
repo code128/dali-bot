@@ -52,7 +52,8 @@
 
     <script type="text/javascript">
         var gameID,
-            turnID;
+            turnID,
+            lastSVG;
 
         var contourFinder,
             filters,
@@ -89,6 +90,7 @@
                 .then(function(fields) {
                     gameID = fields.metadata.gameID;
                     turnID = fields.metadata.turnID;
+                    lastSVG = fields.metadata.lastSVG;
                 })
                 .catch(function(error) { console.log(error); });
         }

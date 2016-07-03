@@ -8,6 +8,11 @@ function createGame(req, res) {
 
 	apiClient.wraps.createPersonalized(process.env.WRAP_ID_GAMEPLAY, {
 			personalized_json: {},
+			metadata: {
+				gameID:game.id,
+				turnID:game.currentTurn,
+				lastSVG:game.imageList.slice(-1)
+			},
 			tags: 'dalibot, hackathon'
 		})
 		.then(function(gameplayWrap) {
