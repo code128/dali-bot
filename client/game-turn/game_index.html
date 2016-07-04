@@ -90,6 +90,10 @@
         function processWrapValues() {
             wrap.getWrapValues()
                 .then(function(fields) {
+                    //TODO: KELLY this does not seem to be 
+                    //getting triggered automatically. If I 
+                    //run it from the console it works, but otherwise
+                    //these globals aren't getting set for you.
                     gameID = fields.metadata.gameID;
                     turnID = fields.metadata.turnID;
                     lastSVG = fields.metadata.lastSVG;
