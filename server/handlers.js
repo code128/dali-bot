@@ -7,8 +7,13 @@ function createGame(req, res) {
 	var game = new Game(req.body);
 	games.add(game);
 
+	var card_id = process.env.TURN_CARD_ID;
+
 	apiClient.wraps.createPersonalized(process.env.WRAP_ID_GAMEPLAY, {
-		personalized_json: {},
+		personalized_json: { card_id: {
+      		"turn_id": game.currentTurn
+      		}
+    	},
 		metadata: {
 			gameID: game.id,
 			turnID: game.currentTurn
