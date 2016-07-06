@@ -2,6 +2,7 @@
 
 var _ = require('lodash');
 var uuid = require('node-uuid');
+var svgUtils = require('./svgUtils');
 
 class Game {
 	constructor(opts) {
@@ -19,6 +20,17 @@ class Game {
 
 	getCurrentPlayer() {
 		return this.players[this.currentTurn];
+	}
+
+	saveTurn(image) {
+		var fileName = this.id + '__' + this.currentTurn,
+			svgPath = svgUtils.saveSvg(image, fileName);
+		this.imageList.push(svgPath);
+		this.currentTurn++;
+	}
+
+	isFinished() {
+		return this.currentTurn >= this.players.length
 	}
 }
 

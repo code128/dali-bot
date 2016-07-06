@@ -1,6 +1,7 @@
 <html>
 <head>
     <title>take picture</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
     <style>
         body {
             margin: 0;
@@ -18,11 +19,25 @@
             position: relative;
             width: 480px;
             height: 640px;
-            margin: 20px auto;
+        }
+
+        #lastSvgContainer {
+            width: 480px;
+            height: 640px;
+        }
+
+        #mainContainer {
+            margin: -580px auto;
+            width: 480px;
+        }
+
+        #buttonContainer {
+            margin: 580px auto;
+            text-align: center;
         }
 
         button {
-            display: block;
+            display: inline-block;
             margin: 20px auto;
             height: 100px;
             width: 100px;
@@ -30,17 +45,24 @@
     </style>
 </head>
 <body>
-    <div id="imageContainer">
-        <video id="video" width="480" height="640" autoplay></video>
-        <canvas id="cameraCanvas" width="480" height="640"></canvas>
-        <div id="lineArt">
-            <svg id="svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 480 640"></svg>
+    <div id="mainContainer">
+        <div id="lastSvgContainer">
+            <img>
+        </div>
+        <div id="imageContainer">
+            <video id="video" width="480" height="640" autoplay></video>
+            <canvas id="cameraCanvas" width="480" height="640"></canvas>
+            <div id="lineArt">
+                <svg id="svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 480 640"></svg>
+            </div>
         </div>
     </div>
 
-    <button id="snap">Snap Photo</button>
-
-    <button id="clear">Clear</button>
+    <div id="buttonContainer">
+        <button id="snap">Snap Photo</button>
+        <button id="clear">Clear</button>
+        <button id="done">Done</button>
+    </div>
 
     <script src="//wrap.co/widgets.js"></script>
     <script src="js/pixel.js"></script>
@@ -64,15 +86,20 @@
         var IMAGE_WIDTH = 480,
             IMAGE_HEIGHT = 640;
 
+
+        var DALIBOT_API_URL = 'https://10.0.1.238:4444/api',
+            CREATE_GAME_URL = DALIBOT_API_URL + '/games';
+
         var video = document.getElementById('video'),
             cameraCanvas = document.getElementById('cameraCanvas'),
             svg = document.getElementById('svg'),
-            photoButton = document.getElementById('snap')
-            clearButton = document.getElementById('clear');
+            photoButton = document.getElementById('snap'),
+            clearButton = document.getElementById('clear'),
+            doneButton = document.getElementById('done');
 
 
         $(function() {
-            wrap.initialize().then(processWrapValues());
+            wrap.initialize().then(processWrapValues);
 
             startVideo(video);
 
@@ -82,21 +109,44 @@
             });
 
             clearButton.addEventListener('click', function() {
+                console.log('clear');
                 $('#cameraCanvas').hide();
                 $('#lineArt').hide();
             });
+
+            doneButton.addEventListener('click', function() {
+                console.log('done');
+                submitTurn();
+            });
         });
 
+        function submitTurn() {
+            var gameOptions = JSON.stringify({
+                turnID: turnID,
+                image: $('#svg').parent().html().trim()
+            });
+
+            $.ajax({
+                type: 'PUT',
+                url: CREATE_GAME_URL + '/' + gameID,
+                headers: { 'Content-Type': 'application/json' },
+                data: gameOptions,
+                dataType: 'json'
+            })
+                .done(function() { console.log('success'); })
+                .fail(function() { console.log('failure'); })
+                .always(function() { console.log('done'); });
+        }
+
         function processWrapValues() {
+            wrap.hideClickShield();
             wrap.getWrapValues()
                 .then(function(fields) {
-                    //TODO: KELLY this does not seem to be 
-                    //getting triggered automatically. If I 
-                    //run it from the console it works, but otherwise
-                    //these globals aren't getting set for you.
+                    console.log('fields', fields);
                     gameID = fields.metadata.gameID;
                     turnID = fields.metadata.turnID;
                     lastSVG = fields.metadata.lastSVG;
+                    $('#lastSvgContainer img').attr('src', lastSVG);
                 })
                 .catch(function(error) { console.log(error); });
         }

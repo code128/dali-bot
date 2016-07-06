@@ -9,14 +9,15 @@ var handlers = require('./handlers');
 var app = express();
 
 function requestLogger(req, res, next) {
-	console.log(req.method, req.url, req.body);
+	console.log(req.method, req.url);
 	next();
 }
 
 function run() {
-	app.use(bodyParser.json());
+	app.use(bodyParser.json({ limit: '50mb' }));
 	app.use(requestLogger);
 	app.use('/public', express.static(process.cwd() + '/client'));
+	app.use('/public_images', express.static(process.cwd() + '/client_images'));
 
 	app.post('/api/games', handlers.createGame);
 	app.get('/api/games/', handlers.listGames);
