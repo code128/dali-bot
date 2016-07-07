@@ -42,20 +42,38 @@
             height: 100px;
             width: 100px;
         }
+        #lineArt{
+            border: 1px solid white;
+        }
+
+        #animation {
+            position: fixed;
+            display: none;
+        }
+        #successMessage {
+            position: fixed;
+            display: none
+        }
     </style>
 </head>
 <body>
     <div id="mainContainer">
+
         <div id="lastSvgContainer">
             <img>
         </div>
         <div id="imageContainer">
             <video id="video" width="480" height="640" autoplay></video>
             <canvas id="cameraCanvas" width="480" height="640"></canvas>
+            <img id="animation" src="img/working.gif"/>
             <div id="lineArt">
                 <svg id="svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 480 640"></svg>
             </div>
         </div>
+    </div>
+    <div id="successMessage">
+        <h1>Your Submission is Complete!</h1>
+        <img src="img/dali-1.jpg"/>
     </div>
 
     <div id="buttonContainer">
@@ -107,12 +125,15 @@
             startVideo(video);
 
             photoButton.addEventListener('click', function() {
+                showDaliAnimation();
                 setCameraCanvasImage();
                 convertPhotoToLineArt();
             });
 
             clearButton.addEventListener('click', function() {
                 console.log('clear');
+                $("#animation").hide();
+
                 $('#cameraCanvas').hide();
                 $('#lineArt').hide();
                 resetSvg();
@@ -121,9 +142,18 @@
 
             doneButton.addEventListener('click', function() {
                 console.log('done');
+                showSubmissionComplete();
                 submitTurn();
             });
         });
+
+        function showSubmissionComplete() {
+            $("#successMessage").show();
+        }
+
+        function showDaliAnimation() {
+            $("#animation").show();
+        }
 
         function submitTurn() {
             var gameOptions = JSON.stringify({
@@ -215,6 +245,7 @@
             processCanvas.loadImg(cameraCanvas.toDataURL(), 0, 0, IMAGE_WIDTH, IMAGE_HEIGHT)
                 .then(function() { process(processCanvas); })
                 .then(function() {
+                    $("#animation").hide();
                     var mc = new Hammer(svg),
                         group = snap.paper.select('g'),
                         panTransform = '',

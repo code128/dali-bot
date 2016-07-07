@@ -83,7 +83,10 @@ function updateGame(req, res) {
 	} else {
 		console.log('next turn', game.currentTurn, game.getCurrentPlayer());
 		apiClient.wraps.createPersonalized(process.env.WRAP_ID_GAMEPLAY, {
-			personalized_json: {},
+			personalized_json: { card_id: {
+	      		"turn_id": game.currentTurn
+	      		}
+	    	},
 			metadata: {
 				gameID: game.id,
 				turnID: game.currentTurn,
