@@ -51,10 +51,15 @@ function updateGame(req, res) {
 		console.log('game is finished', game.imageList);
 
 		apiClient.wraps.createPersonalized(process.env.WRAP_ID_RESULTS, {
-			personalized_json: {},
+			personalized_json: {
+				'db2f6271-569a-418c-b87f-71936a772ef7': {
+					image0: process.env.DEMO_HOST + game.imageList[0],
+					image1: process.env.DEMO_HOST + game.imageList[1],
+					image2: process.env.DEMO_HOST + game.imageList[2],
+				}
+			},
 			metadata: {
-				gameID: game.id,
-				image: game.imageList.slice(-1)
+				gameID: game.id
 			}
 		})
 			.then(function(gameplayWrap) {
