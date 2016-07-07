@@ -1,7 +1,7 @@
 <html>
 <head>
     <title>take picture</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1, maximum-scale=1">
     <style>
         body {
             margin: 0;
@@ -71,6 +71,8 @@
     <script src="js/helpers.js"></script>
     <script src="js/filters.js"></script>
     <script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
+    <script src="js/hammer.min.js"></script>
+    <script src="js/snap.svg.js"></script>
     <script src="js/contour.js"></script>
     <script src="js/image-provider.js"></script>
 
@@ -93,6 +95,7 @@
         var video = document.getElementById('video'),
             cameraCanvas = document.getElementById('cameraCanvas'),
             svg = document.getElementById('svg'),
+            snap = Snap('#svg'),
             photoButton = document.getElementById('snap'),
             clearButton = document.getElementById('clear'),
             doneButton = document.getElementById('done');
@@ -112,6 +115,8 @@
                 console.log('clear');
                 $('#cameraCanvas').hide();
                 $('#lineArt').hide();
+                resetSvg();
+                $('#video').show();
             });
 
             doneButton.addEventListener('click', function() {
@@ -208,7 +213,31 @@
             contourFinder = new ContourFinder();
 
             processCanvas.loadImg(cameraCanvas.toDataURL(), 0, 0, IMAGE_WIDTH, IMAGE_HEIGHT)
-                .then(function() { process(processCanvas); });
+                .then(function() { process(processCanvas); })
+                .then(function() {
+                    var mc = new Hammer(svg),
+                        group = snap.paper.select('g'),
+                        panTransform = '',
+                        rotateTransform = '';
+
+                    $('#cameraCanvas').hide();
+                    $('#video').hide();
+
+                    mc.get('pinch').set({ enable: true });
+
+                    mc.on("pan pinch", function(ev) {
+                        switch (ev.type) {
+                            case 'pan':
+                                panTransform = 't' + ev.deltaX + ',' + ev.deltaY
+                                break;
+                            case 'pinch':
+                                rotateTransform = 's' + ev.scale
+                                break;
+                        }
+
+                        group.transform(panTransform + ' ' + rotateTransform);
+                    });
+                });
         }
 
         function process(canvas) {
@@ -232,34 +261,41 @@
         }
 
         function resetSvg() {
-            var rect = document.createElementNS('http://www.w3.org/2000/svg','rect');
-
             $('#svg').empty();
 
-            svg.appendChild(rect);
-            rect.setAttributeNS(null, 'fill', '#ffffff');
-            rect.setAttributeNS(null, 'width', '100%');
-            rect.setAttributeNS(null, 'height', '100%');
+            snap.attr({
+                width: IMAGE_WIDTH + 'px',
+                height: IMAGE_HEIGHT + 'px',
+                viewBox: 0 + ',' + 0 + ',' + IMAGE_WIDTH + ',' + IMAGE_HEIGHT
+            });
+
+            var group = snap.paper.group({
+                stroke: '#000000',
+                strokeWidth: 1,
+                strokeLinecap: 'round',
+                opacity: 1,
+                strokeDashOffset: 0,
+                fill: 'none'
+            });
+
+            group.rect({
+                width: IMAGE_WIDTH + 'px',
+                height: IMAGE_HEIGHT + 'px',
+                fill: '#ffffff',
+                stroke: 'none',
+            });
         }
 
         function drawContour(points) {
-            var pointsString = '';
-            for (var i = 0; i < points.length; i+= 2) {
-                pointsString += (points[i].x + 1) + ',' + points[i].y + '  ';
-            }
+            var group = snap.paper.select('g');
 
-            var polyline = document.createElementNS('http://www.w3.org/2000/svg','polyline');
-            polyline.setAttributeNS(null, 'points', pointsString.trim());
-            polyline.setAttributeNS(null, 'stroke', '#000000');
-            polyline.setAttributeNS(null, 'stroke-width', 1);
-            polyline.setAttributeNS(null, 'stroke-linecap', 'round');
-            polyline.setAttributeNS(null, 'opacity', 1);
-            polyline.setAttributeNS(null, 'stroke-dashoffset', 0);
-            polyline.setAttributeNS(null, 'fill', 'none');
+            var pointArray = points.reduce(function(p, point) {
+                p.push(point.x);
+                p.push(point.y);
+                return p;
+            }, []);
 
-            svg.appendChild(polyline);
-            svg.setAttribute('viewBox', '0 0 ' + IMAGE_WIDTH + ' ' + IMAGE_HEIGHT);
-            svg.setAttribute('style', 'width:' + IMAGE_WIDTH + 'px');
+            group.polyline(pointArray);
         }
     </script>
 
